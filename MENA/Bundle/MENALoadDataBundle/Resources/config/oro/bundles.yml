@@ -1,0 +1,3 @@
+bundles:
+# priority should be higher then priority of OroFrontendBundle
+    - { name: MENA\Bundle\MENALoadDataBundle\MENALoadDataBundle, priority: 1 }
