@@ -121,9 +121,9 @@ class LoadProductData extends AbstractFixture implements
                 $text = '<p  class="product-view-desc">' . $row['description'] . '</p>';
 
                 $description = new LocalizedFallbackValue();
-                $description->setText(nl2br($text));
+                $description->setText(htmlentities(nl2br($text),ENT_SUBSTITUTE));
                 $shortDescription = new LocalizedFallbackValue();
-                $shortDescription->setText($row['description']);
+                $shortDescription->setText(htmlentities($row['description'],ENT_SUBSTITUTE));
                 $brand = $this->getBrand($manager, trim($row['brand']), $organization, $businessUnit);
                 $inventory_status = $manager->getRepository(EV_Prod_Inventory_Status::class)->find('in_stock');
                 $product = new Product();
