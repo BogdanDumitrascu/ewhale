@@ -66,6 +66,10 @@ class LoadProductData extends AbstractFixture implements
         );
     }
 
+    public function translateChars($string){
+        return iconv('UTF-8', 'ASCII//TRANSLIT', utf8_encode($string));
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -121,9 +125,9 @@ class LoadProductData extends AbstractFixture implements
                 $text = '<p  class="product-view-desc">' . $row['description'] . '</p>';
 
                 $description = new LocalizedFallbackValue();
-                $description->setText(htmlentities(nl2br($text),ENT_SUBSTITUTE));
+                $description->setText($this->translateChars(nl2br($text)));
                 $shortDescription = new LocalizedFallbackValue();
-                $shortDescription->setText(htmlentities($row['description'],ENT_SUBSTITUTE));
+                $shortDescription->setText($this->translateChars($row['description']));
                 $brand = $this->getBrand($manager, trim($row['brand']), $organization, $businessUnit);
                 $inventory_status = $manager->getRepository(EV_Prod_Inventory_Status::class)->find('in_stock');
                 $product = new Product();
