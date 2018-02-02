@@ -39,18 +39,23 @@ class LoadProductPriceData extends AbstractLoadProductPriceData implements Depen
         $priceLists = [
             'Sample Price' => [
                 'discount' => 0,
+                'qty'=> 1,
             ],
             'Wholesale Price List 10 Items' => [
                 'discount' => 0,
+                'qty'=> 10,
             ],
             'Wholesale Price List 50 Items' => [
                 'discount' => 0,
+                'qty'=> 50,
             ],
             'Wholesale Price List 100 Items' => [
                 'discount' => 0,
+                'qty'=> 100,
             ],
             'Cost Price' => [
                 'discount' => 0,
+                'qty'=> 0,
             ],
         ];
 
@@ -75,7 +80,7 @@ class LoadProductPriceData extends AbstractLoadProductPriceData implements Depen
                                     ->setProduct($product)
                                     ->setUnit($productUnit)
                                     ->setPriceList($priceList)
-                                    ->setQuantity($row['quantity'])
+                                    ->setQuantity($listOptions['qty'])
                                     ->setPrice($price);
 
                                 $priceManager->persist($productPrice);
