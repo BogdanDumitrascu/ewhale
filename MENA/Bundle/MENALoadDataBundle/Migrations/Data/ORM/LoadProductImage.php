@@ -221,6 +221,10 @@ class LoadProductImage extends AbstractFixture implements
                     $imagePath = current($imagePath);
                 }
 
+                if(!exif_imagetype($imagePath)) {
+                    file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image is invalid'. PHP_EOL, FILE_APPEND);
+                    continue;
+                }
                 $fileManager = $this->container->get('oro_attachment.file_manager');
                 $image = $fileManager->createFileEntity($imagePath);
                 $manager->persist($image);

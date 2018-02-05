@@ -95,7 +95,7 @@ class LoadProductCategoryData extends AbstractFixture implements ContainerAwareI
                     $row = array_combine($headers, array_values($data));
 
                     $product = $this->getProductBySku($manager, trim($row['sku']));
-                    if ($product != null) {
+                    if ($product != null && isset($row['category'])) {
                         $category = $this->getCategoryByDefaultTitle($manager, trim($row['category']));
                         file_put_contents('/tmp/product.log', 'subcategory->', FILE_APPEND);
                         $subcategory = $this->getCategoryByDefaultTitle($manager, trim($row['subcategory']), $category);
