@@ -66,8 +66,9 @@ class LoadProductData extends AbstractFixture implements
         );
     }
 
+    //https://mathiasbynens.be/notes/mysql-utf8mb4#utf8-to-utf8mb4
     public function translateChars($string){
-        return iconv('UTF-8', 'ASCII//TRANSLIT', utf8_encode($string));
+        return preg_replace('/[[:^print:]]/', "", $string); //preg_replace("/[^\\x00-\\xFFFF]/", "", $string); //mb_convert_encoding($string, 'UTF-8', 'UTF-8');; //iconv('UTF-8', "UTF-8//IGNORE", utf8_encode($string));
     }
 
     /**
@@ -120,7 +121,7 @@ class LoadProductData extends AbstractFixture implements
                 $row = array_combine($headers, array_values($data));
 
                 $name = new LocalizedFallbackValue();
-                $name->setString($row['name']);
+                $name->setString($this->translateChars($row['name']));
 
                 $text = '<p  class="product-view-desc">' . $row['description'] . '</p>';
 
