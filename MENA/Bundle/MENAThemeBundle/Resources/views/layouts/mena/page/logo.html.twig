@@ -8,11 +8,15 @@
         gtag('js', new Date());
 
         gtag('config', 'UA-113197938-1');
+
+        var meta = document.createElement('meta');
+        meta.setAttribute('title', 'Wholesale Prices of Manufacture, Distributors, Traders, Suppliers for GCC &amp; Africa');
+        meta.setAttribute('description', 'Find quality products over the world to get it at your place in GCC and Africa sourced through Manufacturers, Suppliers, Wholesalers, from the UAE, India, China, Turkey, Europe and US.');
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
     </script>
 
     <meta name="google-site-verification" content="Vcfy42vSHZ7yK2-CEW1PQTGkoYrDNuyZE3cv-8IvNhk" />
-    <meta content="Wholesale Prices of Manufacture, Distributors, Traders, Suppliers for GCC &amp; Africa" name="title"/>
-    <meta content="Find quality products over the world to get it at your place in GCC and Africa sourced through Manufacturers, Suppliers, Wholesalers, from the UAE, India, China, Turkey, Europe and US." name="description"/>
     {% if app.request.attributes.get('_route') == 'oro_frontend_root' %}
         <img
             src="{% image '@MENAThemeBundle/Resources/public/frontendbundle/images/logo/logo.jpg' %}{{ asset_url }}{% endimage %}"
