@@ -1,5 +1,8 @@
 // @theme: mena;
 
+$global-url: 'bundles' !default;
+
+@import './product-sticker-config';
 @import './_colors';
 @import './_typography';
 @import './_variables';

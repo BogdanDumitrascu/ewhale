@@ -1,7 +1,6 @@
 styles:
     inputs:
         - 'bundles/menatheme/mena/scss/settings/global-settings.scss'
-
         - 'bundles/orofrontend/default/vendors/slick/slick.css'
         - 'bundles/orofrontend/default/scss/settings/global-settings.scss'
         - 'bundles/orofrontend/default/scss/variables/base-config.scss'
@@ -27,6 +26,8 @@ styles:
         - 'bundles/orofrontend/default/scss/variables/datagrid-manager-config.scss'
         - 'bundles/orofrontend/default/scss/variables/ui/dialog-config.scss'
         - 'bundles/orofrontend/default/scss/styles.scss'
+        - 'bundles/oroproduct/default/scss/variables/product-sticker-config.scss' : '/bundles/menatheme/mena/scss/product-sticker-config.scss'
+
     output: 'css/layout/mena/styles.css'
 
 stylebook_styles:
