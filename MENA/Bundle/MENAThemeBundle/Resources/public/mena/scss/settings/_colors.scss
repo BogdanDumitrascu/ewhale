@@ -35,3 +35,4 @@ $custom-color-palette: (
 ) !default;
 
 $color-palette: map_merge($color-palette, $custom-color-palette);
+$product-sticker-icon-new-arrival-background: url('#{$global-url}/menatheme/frontendbundle/images/sticker-new.svg') 0 0 no-repeat !default;
