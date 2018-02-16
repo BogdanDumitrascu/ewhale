@@ -73,7 +73,12 @@ class LoadProductPriceData extends AbstractLoadProductPriceData implements Depen
                             $priceList = $this->getPriceList($manager, $listName);
                             foreach ($priceList->getCurrencies() as $currency) {
 
-                                $price = Price::create($row[$listName], $currency);
+                                if(!isset($row[$listName])){
+                                    $price_amount=$row[$listName];
+                                }else{
+                                    $price_amount=0;
+                                }
+                                $price = Price::create($price_amount, $currency);
 
                                 $productPrice = new ProductPrice();
                                 $productPrice
