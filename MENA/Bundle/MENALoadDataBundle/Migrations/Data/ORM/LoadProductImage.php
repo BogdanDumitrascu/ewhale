@@ -201,6 +201,12 @@ class LoadProductImage extends AbstractFixture implements
             if (sizeof($files) == 0) {
                 $files = glob($path . '*.PNG');
             }
+            if (sizeof($files) == 0) {
+                $files = glob($path . '*.jpeg');
+            }
+            if (sizeof($files) == 0) {
+                $files = glob($path . '*.JPEG');
+            }
 //            if (sizeof($files) == 0) {
 //                $files = glob($path . '*.tif');
 //            }
@@ -210,7 +216,7 @@ class LoadProductImage extends AbstractFixture implements
             $i = 0;
 
             if ( sizeof ($files) == 0 ){
-                file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image does not exist'. PHP_EOL, FILE_APPEND);
+                file_put_contents('/tmp/error_product.log', 'sku:' . $sku . 'not matches image does not exist'. PHP_EOL, FILE_APPEND);
                 return $productImages;
             }
 
