@@ -121,7 +121,7 @@ class LoadProductImage extends AbstractFixture implements
                     $product = $this->getProductBySku($manager, trim($row['sku']));
 
                     if ($product != null) {
-                        $this->addImageToProduct($product, $manager, $locator, preg_replace('/\s+/', '', $row['image']), $allImageTypes);
+                        $this->addImageToProduct($product, $manager, $locator, preg_replace('/\s+|-/', '', $row['image']), $allImageTypes);
                         file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
                         $manager->persist($product);
