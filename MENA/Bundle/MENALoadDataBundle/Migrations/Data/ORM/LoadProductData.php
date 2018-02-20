@@ -147,7 +147,7 @@ class LoadProductData extends AbstractFixture implements
                         ->setFeatured($row['featured'])
                         ->setNewArrival($row['new_arrival'])
                         ->setBrand($brand);
-                    // $manager->persist($product);
+
                     $this->setPageTemplate($product, $row);
 
                     $slugPrototype = new LocalizedFallbackValue();
@@ -166,24 +166,14 @@ class LoadProductData extends AbstractFixture implements
 
                     $product->setPrimaryUnitPrecision($productUnitPrecision);
 
-                    //  $manager->persist($product);
-
-                    //   $this->addImageToProduct($product, $manager, $locator, $row['image'], $allImageTypes);
+//                    $this->addImageToProduct($product, $manager, $locator, $row['image'], $allImageTypes);
                     file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
                     try {
                         $manager->persist($product);
                     } catch (ORMInvalidArgumentException $e) {
-                        try {
-                            foreach ($product->getImages() as $productImage) {
-                                $product->removeImage($productImage);
-                            }
-                        } catch (ORMException $e) {
-                            file_put_contents('/tmp/error_product.log', 'ORMException' . PHP_EOL, FILE_APPEND);
-                        }
-                        file_put_contents('/tmp/error_product.log', trim($row['sku']) . PHP_EOL, FILE_APPEND);
-                    } catch (ORMException $e) {
-                        file_put_contents('/tmp/error_product.log', 'ORMException' . PHP_EOL, FILE_APPEND);
+
+                        file_put_contents('/tmp/error_product.log', 'ORMException' . $e->getMessage().PHP_EOL, FILE_APPEND);
                         file_put_contents('/tmp/error_product.log', trim($row['sku']) . PHP_EOL, FILE_APPEND);
                     }
 
@@ -270,7 +260,7 @@ class LoadProductData extends AbstractFixture implements
      */
     protected function getProductImageForProductSku(ObjectManager $manager, FileLocator $locator, $sku, $types)
     {
-        $productImages = [];
+        $productImages = array();
 
         try {
             $path = $locator->locate(sprintf('@MENALoadDataBundle/Migrations/Data/ORM/images/products/%s/', $sku));
@@ -282,7 +272,31 @@ class LoadProductData extends AbstractFixture implements
             if (sizeof($files) == 0) {
                 $files = glob($path . '*.png');
             }
+            if (sizeof($files) == 0) {
+                $files = glob($path . '*.JPG');
+            }
+            if (sizeof($files) == 0) {
+                $files = glob($path . '*.PNG');
+            }
+            if (sizeof($files) == 0) {
+                $files = glob($path . '*.jpeg');
+            }
+            if (sizeof($files) == 0) {
+                $files = glob($path . '*.JPEG');
+            }
+//            if (sizeof($files) == 0) {
+//                $files = glob($path . '*.tif');
+//            }
+//            if (sizeof($files) == 0) {
+//                $files = glob($path . '*.TIF');
+//            }
             $i = 0;
+
+            if ( sizeof ($files) == 0 ){
+                file_put_contents('/tmp/error_product.log', 'sku:' . $sku . 'not matches image does not exist'. PHP_EOL, FILE_APPEND);
+                return $productImages;
+            }
+
             foreach ($files as $file) {
                 $imagePath = $locator->locate($file);
 
@@ -290,13 +304,21 @@ class LoadProductData extends AbstractFixture implements
                     $imagePath = current($imagePath);
                 }
 
+                if(!exif_imagetype($imagePath)) {
+                    file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image is invalid'. PHP_EOL, FILE_APPEND);
+                    continue;
+                }
                 $fileManager = $this->container->get('oro_attachment.file_manager');
                 $image = $fileManager->createFileEntity($imagePath);
+
+                file_put_contents('/tmp/image_product.log', 'sku:' . $sku . ' insert image ' . $imagePath . PHP_EOL, FILE_APPEND);
+
                 $manager->persist($image);
                 $manager->flush();
 
                 $productImage = new ProductImage();
                 $productImage->setImage($image);
+
                 foreach ($types as $type) {
                     file_put_contents('/tmp/product.log', 'type: ' . $type . PHP_EOL, FILE_APPEND);
                     if ($i != 0 && $type == 'main') {
@@ -306,12 +328,15 @@ class LoadProductData extends AbstractFixture implements
 
                     $productImage->addType($type);
                 }
+
+
                 $productImages[] = $productImage;
                 $i++;
             }
 
         } catch (\Exception $e) {
             //image not found
+            file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image error: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
 
         return $productImages;

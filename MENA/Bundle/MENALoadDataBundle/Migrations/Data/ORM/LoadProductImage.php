@@ -121,7 +121,7 @@ class LoadProductImage extends AbstractFixture implements
                     $product = $this->getProductBySku($manager, trim($row['sku']));
 
                     if ($product != null) {
-                        $this->addImageToProduct($product, $manager, $locator, trim($row['image']), $allImageTypes);
+                        $this->addImageToProduct($product, $manager, $locator, preg_replace('/\s+/', '', $row['image']), $allImageTypes);
                         file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
                         $manager->persist($product);
@@ -248,16 +248,15 @@ class LoadProductImage extends AbstractFixture implements
                     $productImage->addType($type);
                 }
 
-                $manager->flush();
                 $productImages[] = $productImage;
                 $i++;
             }
 
         } catch (\Exception $e) {
             //image not found
-            file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image does not exist'. PHP_EOL, FILE_APPEND);
+            file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image error: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
-
+        $manager->flush();
         return $productImages;
     }
 
