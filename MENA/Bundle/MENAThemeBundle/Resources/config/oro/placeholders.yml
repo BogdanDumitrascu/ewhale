@@ -1,0 +1,9 @@
+placeholders:
+    placeholders:
+        scripts_before:
+            items:
+                googletag_templates:
+
+    items:
+        googletag_templates:
+            template: MENAThemeBundle:Js:googletag_templates.js.twig
