@@ -6,7 +6,3 @@ layout:
             id: head
             optionName: title
             optionValue: 'Hello Jake!'
-        - '@addTree':
-            items:
-                head:
-                    blockType: head
