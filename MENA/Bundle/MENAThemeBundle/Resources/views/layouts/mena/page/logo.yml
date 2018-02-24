@@ -2,7 +2,7 @@ layout:
     actions:
         - '@setBlockTheme':
             themes: 'logo.html.twig'
-        - @addTree:
+        - '@addTree':
             items:
                 head:
                     blockType: head
