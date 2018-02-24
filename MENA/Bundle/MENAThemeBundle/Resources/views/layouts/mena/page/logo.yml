@@ -2,6 +2,10 @@ layout:
     actions:
         - '@setBlockTheme':
             themes: 'logo.html.twig'
+        - '@setOption':
+            id: head
+            optionName: title
+            optionValue: 'Hello Jake!'
         - '@addTree':
             items:
                 head:
