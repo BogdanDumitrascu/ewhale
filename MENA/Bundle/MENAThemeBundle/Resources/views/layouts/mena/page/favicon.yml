@@ -133,11 +133,11 @@ layout:
                         rel: icon
                         attr:
                             sizes: 16x16
-                favicon_manifest:
-                    blockType: external_resource
-                    options:
-                        href: '=data["asset"].getUrl("bundles/menatheme/frontendbundle/favicons/manifest.json")'
-                        rel: manifest
+#                favicon_manifest:
+#                    blockType: external_resource
+#                    options:
+#                        href: '=data["asset"].getUrl("bundles/menatheme/frontendbundle/favicons/manifest.json")'
+#                        rel: manifest
                 favicon_mask_icon:
                     blockType: external_resource
                     options:
