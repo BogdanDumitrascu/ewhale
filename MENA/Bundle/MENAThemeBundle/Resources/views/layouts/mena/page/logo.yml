@@ -2,6 +2,7 @@ layout:
     actions:
         - '@setBlockTheme':
             themes: 'logo.html.twig'
-
-
-#@OTFrontendBundle/Resources/views/layouts/ot_theme/page/
+        - @addTree:
+            items:
+                head:
+                    blockType: head
