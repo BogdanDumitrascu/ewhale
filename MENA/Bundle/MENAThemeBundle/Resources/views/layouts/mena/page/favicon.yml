@@ -26,8 +26,8 @@ layout:
             id: favicon_96x96
         - '@remove':
             id: favicon_16x16
-        - '@remove':
-            id: favicon_manifest
+      #  - '@remove':
+      #      id: favicon_manifest
         - '@remove':
             id: favicon_mask_icon
         - '@remove':
