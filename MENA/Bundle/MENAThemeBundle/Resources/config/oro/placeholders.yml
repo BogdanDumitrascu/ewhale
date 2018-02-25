@@ -1,0 +1,10 @@
+placeholders:
+    placeholders:
+        scripts_before:
+            items:
+                googletags_templates:
+                    order: 1
+
+    items:
+       googletags_templates:
+            template: MENAThemeBundle:Js:googletags_templates.js.twig
