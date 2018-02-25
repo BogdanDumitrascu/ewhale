@@ -1,2 +1,4 @@
 layout:
-    actions: []
+    actions:
+        - '@setBlockTheme':
+            themes: 'main_menu.html.twig'
