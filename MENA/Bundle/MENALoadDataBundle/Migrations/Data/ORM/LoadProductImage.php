@@ -250,13 +250,14 @@ class LoadProductImage extends AbstractFixture implements
 
                 $productImages[] = $productImage;
                 $i++;
+                $manager->flush();
             }
 
         } catch (\Exception $e) {
             //image not found
             file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image error: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
-        $manager->flush();
+
         return $productImages;
     }
 
