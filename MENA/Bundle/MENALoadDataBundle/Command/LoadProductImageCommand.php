@@ -72,9 +72,14 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
 
         $i = $input->getArgument('product_line_number');
 
-        $this->load($this->container->get('doctrine.orm.entity_manager'),$i, $output);
+        $line_count = $this->fileCount();
 
-        $output->writeln('All good!');
+        while( $i<= $line_count ) {
+
+            $this->load($this->container->get('doctrine.orm.entity_manager'), $i, $output,$line_count);
+            $output->writeln('All good!');
+            $i++;
+        }
         return self::STATUS_SUCCESS;
     }
 
@@ -129,7 +134,7 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
      *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function load(EntityManager $manager,$i, OutputInterface $output)
+    public function load(EntityManager $manager,$i, OutputInterface $output, $line_count)
     {
 
         $locator = $this->container->get('file_locator');
@@ -150,7 +155,7 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
         $loadedProducts = array();
         $j = 0;
 
-        $num = $this->fileCount();
+        $num = $line_count;
         while (($data = fgetcsv($handler, self::MAX_LINE, ',')) !== false) {
 
             if ($j == $i && trim($data[0])!='') {
