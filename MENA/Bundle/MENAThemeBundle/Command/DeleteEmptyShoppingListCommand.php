@@ -74,11 +74,11 @@ class DeleteEmptyShoppingListCommand extends ContainerAwareCommand implements Cr
 
     /**
      * {@inheritdoc}
-     * every 5 minutes
+     * every 2 minutes
      */
     public function getDefaultDefinition()
     {
-        return '*/5 * * * *';
+        return '*/2 * * * *';
     }
 
     /**
