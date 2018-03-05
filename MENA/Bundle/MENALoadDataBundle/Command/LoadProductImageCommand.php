@@ -53,11 +53,7 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
     {
         $this
             ->setName(self::COMMAND_NAME)
-            ->setDescription('load product images')
-            ->addArgument(
-                'product_line_number',
-                InputArgument::OPTIONAL
-            );
+            ->setDescription('load product images');
     }
 
     /*
@@ -70,11 +66,11 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
     {
         $output->writeln('Load product images');
 
-        $i = $input->getArgument('product_line_number');
+      //  $i = $input->getArgument('product_line_number');
 
         $line_count = $this->fileCount();
-
-        while( $i<= $line_count ) {
+        $i =0;
+        while( $i< $line_count ) {
 
             $this->load($this->container->get('doctrine.orm.entity_manager'), $i, $output,$line_count);
             $output->writeln('All good!');
