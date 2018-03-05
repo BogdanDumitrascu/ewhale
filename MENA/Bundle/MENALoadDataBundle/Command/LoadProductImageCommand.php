@@ -25,6 +25,9 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
 
     const STATUS_SUCCESS = 0;
     const COMMAND_NAME   = 'oro:loadproductimages';
+    const MAX_LINE = 2000;
+    const PRODUCT_FILE = '@MENALoadDataBundle/Migrations/Data/ORM/data/products.csv';
+
 
     /**
      * Run every 15 minute
@@ -91,6 +94,23 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
      */
     protected $productUnits = array();
 
+    private function fileCount()
+    {
+        $locator = $this->container->get('file_locator');
+        $filePath = $locator->locate(self::PRODUCT_FILE);
+
+        if (is_array($filePath)) {
+            $filePath = current($filePath);
+        }
+
+        $handler = fopen($filePath, 'rb');
+        $j = 0;
+        while (($data = fgetcsv($handler, self::MAX_LINE, ',')) !== false) {
+            $j++;
+        }
+        return $j-1;
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -113,14 +133,15 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
     {
 
         $locator = $this->container->get('file_locator');
-        $filePath = $locator->locate('@MENALoadDataBundle/Migrations/Data/ORM/data/products.csv');
+        $filePath = $locator->locate(self::PRODUCT_FILE);
 
         if (is_array($filePath)) {
             $filePath = current($filePath);
         }
 
+
         $handler = fopen($filePath, 'rb');
-        $headers = fgetcsv($handler, 2000, ',');
+        $headers = fgetcsv($handler, self::MAX_LINE, ',');
 
 
         $allImageTypes = $this->getImageTypes();
@@ -128,13 +149,15 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
 
         $loadedProducts = array();
         $j = 0;
-        while (($data = fgetcsv($handler, 1000, ',')) !== false) {
+
+        $num = $this->fileCount();
+        while (($data = fgetcsv($handler, self::MAX_LINE, ',')) !== false) {
 
             if ($j == $i && trim($data[0])!='') {
                 if ( sizeof($headers) == sizeof(array_values($data))) {
                     $row = array_combine($headers, array_values($data));
 
-                    $output->writeln('product: '. trim($row['sku']));
+                    $output->writeln($i.' of '. $num. ', completed:'.round($i/$num*100,2) .'% .product: '. trim($row['sku']));
 
                     $product = $this->getProductBySku($manager, trim($row['sku']));
 
