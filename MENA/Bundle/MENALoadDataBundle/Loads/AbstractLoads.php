@@ -4,6 +4,7 @@ namespace MENA\Bundle\MENALoadDataBundle\Loads;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Oro\Bundle\CatalogBundle\Entity\Category;
 use Oro\Bundle\UserBundle\Entity\User;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -17,6 +18,11 @@ abstract class AbstractLoads implements
     // DependentFixtureInterface
 {
 
+
+    /**
+     * @var Category
+     */
+    protected $root;
 
       /**
      * @var EntityRepository

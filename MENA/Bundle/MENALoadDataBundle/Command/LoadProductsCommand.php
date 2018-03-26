@@ -2,6 +2,7 @@
 
 namespace MENA\Bundle\MENALoadDataBundle\Command;
 
+use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductCategory;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductData;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductImages;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductPriceList;
@@ -66,6 +67,7 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
         $productLoader = new LoadProductData($this->container);
         $priceListLoader = new LoadProductPriceList($this->container);
         $imageLoader = new LoadProductImages($this->container);
+        $categoryLoader = new LoadProductCategory($this->container);
 
         $line_count = $this->fileCount();
 
@@ -90,6 +92,7 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
                 $product = $productLoader->load($this->container->get('doctrine.orm.entity_manager'), $output, new Product() ,$row);
                 $priceListLoader->load($this->container->get('doctrine.orm.entity_manager'), $output,$product,$row);
                 $imageLoader->load($this->container->get('doctrine.orm.entity_manager'), $output,$product,$row);
+                $categoryLoader->load($this->container->get('doctrine.orm.entity_manager'), $output,$product,$row);
 
                 $output->writeln($i . ' of ' . $num . ', completed:' . round($i / $num * 100, 2) . '% product: ' . trim($row['sku']));
                 $i++;
