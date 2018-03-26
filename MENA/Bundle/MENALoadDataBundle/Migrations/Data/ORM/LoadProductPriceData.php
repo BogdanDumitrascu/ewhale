@@ -34,7 +34,7 @@ class LoadProductPriceData extends AbstractLoadProductPriceData implements Depen
         }
 
         $handler = fopen($filePath, 'r');
-        $headers = fgetcsv($handler, 2000, ',');
+        $headers = fgetcsv($handler, 20000, ',');
 
         $priceLists = [
             'Sample Price' => [

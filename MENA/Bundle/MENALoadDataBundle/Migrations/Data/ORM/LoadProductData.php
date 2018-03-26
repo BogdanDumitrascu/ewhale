@@ -105,7 +105,7 @@ class LoadProductData extends AbstractFixture implements
         }
 
         $handler = fopen($filePath, 'rb');
-        $headers = fgetcsv($handler, 2000, ',');
+        $headers = fgetcsv($handler, 20000, ',');
 
         $outOfStockStatus = $this->getOutOfStockInventoryStatus($manager);
 
@@ -117,7 +117,7 @@ class LoadProductData extends AbstractFixture implements
 
         $AttributeFamily = $this->getAttributeFamily($manager, 'default_family');
 
-        while (($data = fgetcsv($handler, 2000, ',')) !== false) {
+        while (($data = fgetcsv($handler, 20000, ',')) !== false) {
             if (sizeof($headers) == sizeof(array_values($data))) {
                 $row = array_combine($headers, array_values($data));
                 if (trim($row['sku']) != '') {

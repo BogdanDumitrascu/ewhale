@@ -25,18 +25,8 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
 
     const STATUS_SUCCESS = 0;
     const COMMAND_NAME   = 'oro:loadproductimages';
-    const MAX_LINE = 2000;
+    const MAX_LINE = 20000;
     const PRODUCT_FILE = '@MENALoadDataBundle/Migrations/Data/ORM/data/products.csv';
-
-
-    /**
-     * Run every 15 minute
-     * {@inheritdoc}
-     */
-    public function getDefaultDefinition()
-    {
-        return '*/15 * * * *';
-    }
 
     /**
      * {@inheritdoc}
@@ -67,8 +57,9 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
         $output->writeln('Load product images');
 
       //  $i = $input->getArgument('product_line_number');
+        $helper = new LoadProductHelpers();
+        $line_count = $helper->fileCount();
 
-        $line_count = $this->fileCount();
         $i =0;
         while( $i< $line_count ) {
 
@@ -158,7 +149,7 @@ class LoadProductImageCommand extends Command implements ContainerAwareInterface
                 if ( sizeof($headers) == sizeof(array_values($data))) {
                     $row = array_combine($headers, array_values($data));
 
-                    $output->writeln($i.' of '. $num. ', completed:'.round($i/$num*100,2) .'% .product: '. trim($row['sku']));
+                    $output->writeln($i.' of '. $num. ', completed:'.round($i/$num*100,2) .'% product: '. trim($row['sku']));
 
                     $product = $this->getProductBySku($manager, trim($row['sku']));
 

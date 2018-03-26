@@ -84,11 +84,11 @@ class LoadProductCategoryData extends AbstractFixture implements ContainerAwareI
         }
 
         $handler = fopen($filePath, 'r');
-        $headers = fgetcsv($handler, 2000, ',');
+        $headers = fgetcsv($handler, 20000, ',');
 
         $this->root = $category = $this->getCategoryRepository($manager)->findOneBy(array('id'=>1));
 
-        while (($data = fgetcsv($handler, 1000, ',')) !== false) {
+        while (($data = fgetcsv($handler, 20000, ',')) !== false) {
 
             if (trim($data[0])!='') {
                 if (sizeof($headers) == sizeof(array_values($data))) {
