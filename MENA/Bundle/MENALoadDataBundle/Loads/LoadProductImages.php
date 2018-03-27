@@ -141,6 +141,7 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
      * @param FileLocator $locator
      * @param string $sku
      * @param array $allImageTypes
+     * @return int number of product images
      */
     private function addImageToProduct(
         $product,
@@ -172,5 +173,7 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
                 }
             }
         }
+
+        return sizeof($productImages) ;
     }
 }

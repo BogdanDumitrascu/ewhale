@@ -29,7 +29,7 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
     public function __construct($container)
     {
         parent::__construct($container);
-        $this->root = $category = $this->getCategoryRepository($this->container->get('doctrine.orm.entity_manager'))->findOneBy(array('id'=>1));
+        $this->root = $category = $this->getCategoryRepository($this->container->get('doctrine.orm.entity_manager'))->findOneBy(['id' => 1]);
     }
 
     /**
@@ -40,21 +40,15 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
     public function load(EntityManager $manager, OutputInterface $output, Product $product, $row)
     {
 
-     //  if ($product != null && isset($row['category'])) {
+        $output->writeln('Loading product category: [' .trim($row['category']). '] for product: '. trim($row['sku']));
 
-            $output->writeln('Loading product category: ' . trim($row['sku']));
-
-            $category = $this->getCategoryByDefaultTitle($manager, trim($row['category']));
-            file_put_contents('/tmp/product.log', 'subcategory->', FILE_APPEND);
-            $subcategory = $this->getCategoryByDefaultTitle($manager, trim($row['subcategory']), $category);
-            $subcategory->addProduct($product);
-
-            $manager->persist($category);
-            $manager->persist($subcategory);
-            $manager->persist($this->root);
-
-       // }
-
+        $category = $this->getCategoryByDefaultTitle($manager, trim($row['category']));
+        file_put_contents('/tmp/product.log', 'subcategory->', FILE_APPEND);
+        $subcategory = $this->getCategoryByDefaultTitle($manager, trim($row['subcategory']), $category);
+        $subcategory->addProduct($product);
+        $manager->persist($category);
+        $manager->persist($subcategory);
+        $manager->persist($this->root);
         $manager->flush();
 
     }
@@ -71,10 +65,6 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
                                                  Category $parent_category = null)
     {
 
-        if (array_key_exists($title, $this->categories)) {
-            return $this->categories[$title];
-        }
-
         $category = $this->getCategoryRepository($manager)->findOneByDefaultTitle($title);
 
         if (!$category) {
@@ -89,8 +79,6 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
                 $this->root->addChildCategory($category);
             }
         }
-
-        $this->categories[$title] = $category;
 
         return $category;
     }
@@ -113,6 +101,8 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
         $slugPrototype = new LocalizedFallbackValue();
         $slugPrototype->setString($slugGenerator->slugify($title));
         $category->addSlugPrototype($slugPrototype);
+
+        $manager->persist($category);
 
         return $category;
     }

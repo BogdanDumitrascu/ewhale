@@ -2,6 +2,7 @@
 
 namespace MENA\Bundle\MENALoadDataBundle\Command;
 
+use Doctrine\ORM\EntityManager;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductCategory;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductData;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductImages;
@@ -81,25 +82,46 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
         $handler = fopen($filePath, 'rb');
         $headers = fgetcsv($handler, self::MAX_LINE, ',');
 
-        $i = 1;
-
+        $i = 0;
+        $line = 0;
+        $duplicate=0;
         $num = $line_count;
-
+        $manager = $this->container->get('doctrine.orm.entity_manager');
         while (($data = fgetcsv($handler, self::MAX_LINE, ',')) !== false) {
+            /** @var EntityManager $manager */
+
             if (trim($data[0]) != '' &&  (sizeof($headers) == sizeof(array_values($data)))) {
                 $row = array_combine($headers, array_values($data));
-                /** @var Product $product */
-                $product = $productLoader->load($this->container->get('doctrine.orm.entity_manager'), $output, new Product() ,$row);
-                $priceListLoader->load($this->container->get('doctrine.orm.entity_manager'), $output,$product,$row);
-                $imageLoader->load($this->container->get('doctrine.orm.entity_manager'), $output,$product,$row);
-                $categoryLoader->load($this->container->get('doctrine.orm.entity_manager'), $output,$product,$row);
 
-                $output->writeln($i . ' of ' . $num . ', completed:' . round($i / $num * 100, 2) . '% product: ' . trim($row['sku']));
-                $i++;
-                if( $i==2)
-                    break;
+                $product = $productLoader->getProductBySku($manager, trim($row['sku']));
+                $line++;
+                if ($product == null) {
+                    $product = $productLoader->load($manager, $output, new Product(), $row);
+                    $priceListLoader->load($manager, $output, $product, $row);
+                    $imageLoader->load($manager, $output, $product, $row);
+                    $categoryLoader->load($manager, $output, $product, $row);
+                    $i++;
+                }else {
+                    $duplicate++;
+                    $output->writeln('>> product already loaded: ' . trim($row['sku']));
+                }
+
+                $output->writeln('--------------------------------------------------------------------------');
+                $output->writeln('=> '.$line . ' of ' . $num . ', completed:' . round($i / ($num-$duplicate) * 100, 2) . '% product: ' . trim($row['sku']));
+                $output->writeln('=> Already loaded products: '. $duplicate);
+                $output->writeln('=> New products loaded: '. $i);
+                $output->writeln('--------------------------------------------------------------------------');
+//                if( $i==2)
+//                    break;
             }
+           $manager->clear();
+
         }
+        $output->writeln('|');
+        $output->writeln('=================================================');
+        $output->writeln('Total already loaded products: '. $duplicate);
+        $output->writeln('Total new products loaded: '. $i);
+        $output->writeln('=================================================');
         return self::STATUS_SUCCESS;
     }
 }

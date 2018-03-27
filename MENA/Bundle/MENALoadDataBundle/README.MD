@@ -21,3 +21,6 @@ and spaces in files names and folder names.
 
 ## Run a load in a test environment 
 
+* remove migration rows in `oro_migraitons_data`
+* run `app/console oro:migration:data:load`
+* load product images `app/console oro:loadproductimages`

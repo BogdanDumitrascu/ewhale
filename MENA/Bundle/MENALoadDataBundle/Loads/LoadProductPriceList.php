@@ -41,11 +41,6 @@ class LoadProductPriceList extends AbstractLoads implements ContainerAwareInterf
     ];
 
     /**
-     * @var array
-     */
-    protected $productUnits = [];
-
-    /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
@@ -86,30 +81,13 @@ class LoadProductPriceList extends AbstractLoads implements ContainerAwareInterf
 
     /**
      * @param EntityManager $manager
-     * @param string $code
-     * @return ProductUnit|null
-     */
-    protected function getProductUnit(EntityManager $manager, $code)
-    {
-        if (!array_key_exists($code, $this->productUnits)) {
-            $this->productUnits[$code] = $manager->getRepository('OroProductBundle:ProductUnit')->find($code);
-        }
-
-        return $this->productUnits[$code];
-    }
-
-    /**
-     * @param EntityManager $manager
      * @param string $name
      * @return PriceList|null
      */
     protected function getPriceList(EntityManager $manager, $name)
     {
-        if (!array_key_exists($name, $this->priceLists)) {
-            $this->priceLists[$name] = $manager->getRepository('OroPricingBundle:PriceList')
-                ->findOneBy(['name' => $name]);
-        }
 
-        return $this->priceLists[$name];
+        return $manager->getRepository('OroPricingBundle:PriceList')
+            ->findOneBy(['name' => $name]);
     }
 }

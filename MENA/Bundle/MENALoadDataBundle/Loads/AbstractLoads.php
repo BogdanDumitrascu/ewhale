@@ -81,27 +81,13 @@ abstract class AbstractLoads implements
      * @param string $sku
      * @return Product|null
      */
-    protected function getProductBySku(EntityManager $manager, $sku)
+    public function getProductBySku(EntityManager $manager, $sku)
     {
         if (!array_key_exists($sku, $this->products)) {
             $this->products[$sku] = $manager->getRepository('OroProductBundle:Product')->findOneBy(array('sku' => $sku));
         }
 
         return $this->products[$sku];
-    }
-
-    /**
-     * @param EntityManager $manager
-     * @param string $code
-     * @return ProductUnit|null
-     */
-    protected function getProductUnit(EntityManager $manager, $code)
-    {
-        if (!array_key_exists($code, $this->productUnis)) {
-            $this->productUnis[$code] = $manager->getRepository('OroProductBundle:ProductUnit')->find($code);
-        }
-
-        return $this->productUnis[$code];
     }
 
     protected function translateChars($string)
@@ -124,5 +110,15 @@ abstract class AbstractLoads implements
         return reset($users);
     }
 
+    /**
+     * @param EntityManager $manager
+     * @param string $code
+     * @return ProductUnit|null
+     */
+    protected function getProductUnit(EntityManager $manager, $code)
+    {
 
+        return $manager->getRepository('OroProductBundle:ProductUnit')->find($code);
+
+    }
 }

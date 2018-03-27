@@ -166,7 +166,6 @@ class LoadProductData extends AbstractFixture implements
 
                     $product->setPrimaryUnitPrecision($productUnitPrecision);
 
-//                    $this->addImageToProduct($product, $manager, $locator, $row['image'], $allImageTypes);
                     file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
                     try {

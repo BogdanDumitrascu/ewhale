@@ -6,6 +6,8 @@ use Doctrine\ORM\EntityManager;
 use Extend\Entity\EV_Prod_Inventory_Status;
 use Oro\Bundle\EntityBundle\Entity\EntityFieldFallbackValue;
 use Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily;
+use Oro\Bundle\InventoryBundle\Entity\InventoryLevel;
+use Oro\Bundle\InventoryBundle\Inventory\InventoryManager;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
 use Oro\Bundle\OrganizationBundle\Entity\BusinessUnit;
 use Oro\Bundle\OrganizationBundle\Entity\OrganizationInterface;
@@ -23,7 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 class LoadProductData extends AbstractLoads implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
-
+    const PRODUCT_INVENTORY_QUANTITY = 1000;
     /**
      * @var array
      */
@@ -49,7 +51,7 @@ class LoadProductData extends AbstractLoads implements ContainerAwareInterface
         $businessUnit = $user->getOwner();
         $organization = $user->getOrganization();
 
-        $outOfStockStatus = $this->getOutOfStockInventoryStatus($manager);
+        $inStockStatus = $this->getInStockInventoryStatus($manager);
 
         $slugGenerator = $this->container->get('oro_entity_config.slug.generator');
         $AttributeFamily = $this->getAttributeFamily($manager, 'default_family');
@@ -62,15 +64,13 @@ class LoadProductData extends AbstractLoads implements ContainerAwareInterface
         $shortDescription = new LocalizedFallbackValue();
         $shortDescription->setText($this->translateChars($row['description']));
         $brand = $this->getBrand($manager, trim($row['brand']), $organization, $businessUnit);
-        $inventory_status = $manager->getRepository(EV_Prod_Inventory_Status::class)->find('in_stock');
         $product = new Product();
         $product->setOwner($businessUnit)
             ->setOrganization($organization)
             ->setAttributeFamily($AttributeFamily)
             ->setSku(trim($row['sku']))
-            ->setInventoryStatus($outOfStockStatus)
+            ->setInventoryStatus($inStockStatus)
             ->setStatus(Product::STATUS_ENABLED)
-            ->setInventoryStatus($inventory_status)
             ->addName($name)
             ->addDescription($description)
             ->addShortDescription($shortDescription)
@@ -98,10 +98,7 @@ class LoadProductData extends AbstractLoads implements ContainerAwareInterface
         $product->setPrimaryUnitPrecision($productUnitPrecision);
 
         file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
-
-
         $manager->persist($product);
-
         file_put_contents('/tmp/product.log', 'persisted product : ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
         $loadedProducts[] = $product;
@@ -168,30 +165,15 @@ function createSlugs(array $products, EntityManager $manager)
  * @throws \InvalidArgumentException
  */
 protected
-function getOutOfStockInventoryStatus(EntityManager $manager)
+function getInStockInventoryStatus(EntityManager $manager)
 {
     $inventoryStatusClassName = ExtendHelper::buildEnumValueClassName(self::ENUM_CODE_INVENTORY_STATUS);
 
     return $manager->getRepository($inventoryStatusClassName)->findOneBy([
-        'id' => Product::INVENTORY_STATUS_OUT_OF_STOCK
+        'id' => Product::INVENTORY_STATUS_IN_STOCK
     ]);
 }
 
-
-/**
- * @param EntityManager $manager
- * @param string $code
- * @return ProductUnit|null
- */
-protected
-function getProductUnit(EntityManager $manager, $code)
-{
-    if (!array_key_exists($code, $this->productUnits)) {
-        $this->productUnits[$code] = $manager->getRepository('OroProductBundle:ProductUnit')->find($code);
-    }
-
-    return $this->productUnits[$code];
-}
 
 /**
  * @param EntityManager $manager
