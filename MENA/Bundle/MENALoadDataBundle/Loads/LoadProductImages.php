@@ -113,12 +113,12 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
                 $productImages[] = $productImage;
                 $i++;
                 $manager->flush();
-                $output->writeln('Loaded image: ' . $imagePath );
+                $output->writeln('---> Loaded image: ' . $imagePath );
             }
 
         } catch (\Exception $e) {
             //image not found
-            $output->writeln('Loading image ERROR: ['.$e->getMessage() .']');
+            $output->writeln('---> Loading image ERROR: ['.$e->getMessage() .']');
             file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image error: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
 

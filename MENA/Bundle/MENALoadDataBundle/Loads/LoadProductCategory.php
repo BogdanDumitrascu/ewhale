@@ -3,7 +3,6 @@
 namespace MENA\Bundle\MENALoadDataBundle\Loads;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
 use Oro\Bundle\CatalogBundle\Entity\Category;
 use Oro\Bundle\CatalogBundle\Entity\Repository\CategoryRepository;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
@@ -11,25 +10,26 @@ use Oro\Bundle\ProductBundle\Entity\Product;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class LoadProductCategory extends AbstractLoads implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
     /**
-     * @var array
+     * @var Category
      */
-    protected $categories = [];
+    protected $root;
 
     /**
      * @var CategoryRepository
      */
     protected $categoryRepository;
 
-    public function __construct($container)
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
-        $this->root = $category = $this->getCategoryRepository($this->container->get('doctrine.orm.entity_manager'))->findOneBy(['id' => 1]);
+        $this->root = $this->getCategoryRepository($container->get('doctrine.orm.entity_manager'))->getMasterCatalogRoot();
     }
 
     /**
@@ -39,18 +39,22 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
      */
     public function load(EntityManager $manager, OutputInterface $output, Product $product, $row)
     {
+        $output->writeln('Loading product category: [' . trim($row['category']) . '] for product: ' . trim($row['sku']));
 
-        $output->writeln('Loading product category: [' .trim($row['category']). '] for product: '. trim($row['sku']));
+        $output->writeln('---> Root: '. $this->root->getDefaultTitle());
 
         $category = $this->getCategoryByDefaultTitle($manager, trim($row['category']));
-        file_put_contents('/tmp/product.log', 'subcategory->', FILE_APPEND);
+        file_put_contents('/tmp/product.log', 'subcategory->' . trim($row['subcategory']). PHP_EOL, FILE_APPEND);
         $subcategory = $this->getCategoryByDefaultTitle($manager, trim($row['subcategory']), $category);
         $subcategory->addProduct($product);
+
+        $output->writeln('---> Category: '. $category->getDefaultTitle());
+        $output->writeln('---> Subcategory: '. $subcategory->getDefaultTitle());
+
         $manager->persist($category);
         $manager->persist($subcategory);
-        $manager->persist($this->root);
-        $manager->flush();
 
+        $manager->flush();
     }
 
     /**
@@ -69,14 +73,14 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
 
         if (!$category) {
             file_put_contents('/tmp/product.log', 'category not found: ' . $title . PHP_EOL, FILE_APPEND);
-
             $category = $this->createCategory($manager, $title);
 
-            if (isset($parent_category)) {
+            if ($parent_category != null) {
                 file_put_contents('/tmp/product.log', 'add to parent category: ' . $parent_category->getDefaultTitle() . PHP_EOL, FILE_APPEND);
                 $parent_category->addChildCategory($category);
             } else {
                 $this->root->addChildCategory($category);
+                $manager->persist($this->root);
             }
         }
 
@@ -102,7 +106,7 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
         $slugPrototype->setString($slugGenerator->slugify($title));
         $category->addSlugPrototype($slugPrototype);
 
-        $manager->persist($category);
+        //$manager->persist($category);
 
         return $category;
     }
@@ -110,21 +114,7 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
     /**
      * @param EntityManager $manager
      *
-     * @return EntityRepository
-     */
-    protected function getProductRepository(EntityManager $manager)
-    {
-        if (!$this->productRepository) {
-            $this->productRepository = $manager->getRepository('OroProductBundle:Product');
-        }
-
-        return $this->productRepository;
-    }
-
-    /**
-     * @param EntityManager $manager
-     *
-     * @return \Oro\Bundle\CatalogBundle\Entity\Repository\CategoryRepository
+     * @return CategoryRepository
      */
     protected function getCategoryRepository(EntityManager $manager)
     {

@@ -12,3 +12,8 @@ find $1 -type f -not -name "*.jpg" -exec mogrify -format jpg {} +
 find $1 -type f -not -name "*.jpg" -exec rm -rf {} +
 #reduce jpg image quality by 60%
 find $1 -type f -name "*.jpg" -exec convert {} -sampling-factor 4:2:0 -strip -quality 60 -interlace JPEG -colorspace sRGB {} \;
+
+# images bigger than 800 kilobytes
+
+find $1 -type f -size +800k -exec convert -resize 20% {} {} \;
+

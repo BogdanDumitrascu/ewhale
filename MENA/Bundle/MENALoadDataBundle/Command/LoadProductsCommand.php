@@ -98,8 +98,8 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
                 if ($product == null) {
                     $product = $productLoader->load($manager, $output, new Product(), $row);
                     $priceListLoader->load($manager, $output, $product, $row);
-                    $imageLoader->load($manager, $output, $product, $row);
                     $categoryLoader->load($manager, $output, $product, $row);
+                    $imageLoader->load($manager, $output, $product, $row);
                     $i++;
                 }else {
                     $duplicate++;
@@ -107,11 +107,11 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
                 }
 
                 $output->writeln('--------------------------------------------------------------------------');
-                $output->writeln('=> '.$line . ' of ' . $num . ', completed:' . round($i / ($num-$duplicate) * 100, 2) . '% product: ' . trim($row['sku']));
+                $output->writeln('=> '.$line . ' of ' . $num . ', completed:' . round($line / ($num) * 100, 2) . '% product: ' . trim($row['sku']));
                 $output->writeln('=> Already loaded products: '. $duplicate);
                 $output->writeln('=> New products loaded: '. $i);
                 $output->writeln('--------------------------------------------------------------------------');
-//                if( $i==2)
+//                if( $i==1)
 //                    break;
             }
            $manager->clear();

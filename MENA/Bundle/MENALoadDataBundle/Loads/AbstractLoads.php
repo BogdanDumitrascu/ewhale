@@ -19,10 +19,6 @@ abstract class AbstractLoads implements
 {
 
 
-    /**
-     * @var Category
-     */
-    protected $root;
 
       /**
      * @var EntityRepository
@@ -62,7 +58,7 @@ abstract class AbstractLoads implements
         $this->container = $container;
     }
 
-    public function __construct($container)
+    public function __construct(ContainerInterface $container)
     {
         $this->setContainer($container);
     }
