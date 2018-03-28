@@ -106,14 +106,14 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
                     $duplicate++;
                     $output->writeln('>> product already loaded: ' . trim($row['sku']));
                 }
-
+                $product=null;
                 $output->writeln('--------------------------------------------------------------------------');
                 $output->writeln('=> '.$line . ' of ' . $num . ', completed:' . round($line / ($num) * 100, 2) . '% product: ' . trim($row['sku']));
                 $output->writeln('=> Already loaded products: '. $duplicate);
                 $output->writeln('=> New products loaded: '. $i);
                 $output->writeln('--------------------------------------------------------------------------');
-//                if( $i==1)
-//                    break;
+                if( $i==200)
+                    break;
             }
            $manager->clear();
 
