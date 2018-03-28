@@ -9,12 +9,32 @@ use Oro\Bundle\ProductBundle\Entity\ProductImage;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
+    private $imageTypes;
+    private $fileLocator;
+    private $fileManager;
+    private $imageResizer;
+    private $attachmentManager;
+    private $mediaCacheManager;
+    private $imageDimensionsProvider;
 
+    public function __construct(ContainerInterface $container)
+    {
+        parent::__construct($container);
+        $this->imageTypes =  array_keys($this->container->get('oro_layout.provider.image_type')->getImageTypes());
+        $this->container->get('oro_layout.loader.image_filter')->load();
+        $this->fileLocator = $this->container->get('file_locator');
+        $this->fileManager = $this->container->get('oro_attachment.file_manager');
+        $this->imageResizer = $this->container->get('oro_attachment.image_resizer');
+        $this->attachmentManager = $this->container->get('oro_attachment.manager');
+        $this->mediaCacheManager = $this->container->get('oro_attachment.media_cache_manager');
+        $this->imageDimensionsProvider = $this->container->get('oro_product.provider.product_images_dimensions');
+    }
 
     /**
      * {@inheritdoc}
@@ -23,13 +43,18 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
     public function load(EntityManager $manager, OutputInterface $output, Product $product, $row)
     {
         $output->writeln('Loading product images: ' . trim($row['sku']));
-        $allImageTypes = $this->getImageTypes();
-        $this->container->get('oro_layout.loader.image_filter')->load();
 
-        $this->addImageToProduct($product, $manager, $this->container->get('file_locator'), preg_replace('/\s+|-/', '', $row['image']), $allImageTypes, $output);
-        file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
+        $this->addImageToProduct(
+            $product,
+            $manager,
+            $this->fileLocator,
+            preg_replace('/\s+|-/', '', $row['image']),
+            $this->imageTypes,
+            $output);
+
+//        file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
         $manager->persist($product);
-        file_put_contents('/tmp/product.log', 'persisted product : ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
+//        file_put_contents('/tmp/product.log', 'persisted product : ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
         $manager->flush();
        // $output->writeln('Loading product images loaded');
@@ -94,19 +119,18 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
                     file_put_contents('/tmp/error_product.log', 'sku:' . $sku . ' image is invalid' . PHP_EOL, FILE_APPEND);
                     continue;
                 }
-                $fileManager = $this->container->get('oro_attachment.file_manager');
-                $image = $fileManager->createFileEntity($imagePath);
-                $manager->persist($image);
 
+                $image = $this->fileManager->createFileEntity($imagePath);
+                $manager->persist($image);
 
                 $productImage = new ProductImage();
                 $productImage->setImage($image);
                 foreach ($types as $type) {
-                    file_put_contents('/tmp/product.log', 'type: ' . $type . PHP_EOL, FILE_APPEND);
+//                    file_put_contents('/tmp/product.log', 'type: ' . $type . PHP_EOL, FILE_APPEND);
                     if ($i != 0 && $type == 'main') {
                         continue;
                     }
-                    file_put_contents('/tmp/product.log', 'sku:' . $sku . ' image ' . $imagePath . ' type: ' . $type . PHP_EOL, FILE_APPEND);
+//                    file_put_contents('/tmp/product.log', 'sku:' . $sku . ' image ' . $imagePath . ' type: ' . $type . PHP_EOL, FILE_APPEND);
                     $productImage->addType($type);
                 }
 
@@ -114,6 +138,8 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
                 $i++;
                 $manager->flush();
                 $output->writeln('---> Loaded image: ' . $imagePath );
+                $imagePath=null;
+                $image=null;
             }
 
         } catch (\Exception $e) {
@@ -130,9 +156,10 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
      */
     protected function getImageTypes()
     {
-        $imageTypeProvider = $this->container->get('oro_layout.provider.image_type');
-
-        return array_keys($imageTypeProvider->getImageTypes());
+//        $imageTypeProvider = $this->container->get('oro_layout.provider.image_type');
+//
+//        return array_keys($imageTypeProvider->getImageTypes());
+        return $this->imageTypes;
     }
 
     /**
@@ -141,6 +168,8 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
      * @param FileLocator $locator
      * @param string $sku
      * @param array $allImageTypes
+     * @param OutputInterface $output
+     *
      * @return int number of product images
      */
     private function addImageToProduct(
@@ -152,23 +181,21 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
         $output
     )
     {
-        $imageResizer = $this->container->get('oro_attachment.image_resizer');
-        $attachmentManager = $this->container->get('oro_attachment.manager');
-        $mediaCacheManager = $this->container->get('oro_attachment.media_cache_manager');
+
         $productImages = $this->getProductImageForProductSku($manager, $locator, $sku, $allImageTypes,$output);
-        $imageDimensionsProvider = $this->container->get('oro_product.provider.product_images_dimensions');
+
         if (sizeof($productImages) > 0) {
 
             foreach ($productImages as $productImage) {
                 $product->addImage($productImage);
 
-                foreach ($imageDimensionsProvider->getDimensionsForProductImage($productImage) as $dimension) {
+                foreach ($this->imageDimensionsProvider->getDimensionsForProductImage($productImage) as $dimension) {
                     $image = $productImage->getImage();
                     $filterName = $dimension->getName();
-                    $imagePath = $attachmentManager->getFilteredImageUrl($image, $filterName);
+                    $imagePath = $this->attachmentManager->getFilteredImageUrl($image, $filterName);
 
-                    if ($filteredImage = $imageResizer->resizeImage($image, $filterName)) {
-                        $mediaCacheManager->store($filteredImage->getContent(), $imagePath);
+                    if ($filteredImage = $this->imageResizer->resizeImage($image, $filterName)) {
+                        $this->mediaCacheManager->store($filteredImage->getContent(), $imagePath);
                     }
                 }
             }

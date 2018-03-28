@@ -97,9 +97,9 @@ class LoadProductData extends AbstractLoads implements ContainerAwareInterface
 
         $product->setPrimaryUnitPrecision($productUnitPrecision);
 
-        file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
+//        file_put_contents('/tmp/product.log', 'persisting product: ' . $product->getName() . ' ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
         $manager->persist($product);
-        file_put_contents('/tmp/product.log', 'persisted product : ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
+//        file_put_contents('/tmp/product.log', 'persisted product : ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
         $loadedProducts[] = $product;
 

@@ -44,7 +44,7 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
         $output->writeln('---> Root: '. $this->root->getDefaultTitle());
 
         $category = $this->getCategoryByDefaultTitle($manager, trim($row['category']));
-        file_put_contents('/tmp/product.log', 'subcategory->' . trim($row['subcategory']). PHP_EOL, FILE_APPEND);
+//        file_put_contents('/tmp/product.log', 'subcategory->' . trim($row['subcategory']). PHP_EOL, FILE_APPEND);
         $subcategory = $this->getCategoryByDefaultTitle($manager, trim($row['subcategory']), $category);
         $subcategory->addProduct($product);
 
@@ -72,11 +72,11 @@ class LoadProductCategory extends AbstractLoads implements ContainerAwareInterfa
         $category = $this->getCategoryRepository($manager)->findOneByDefaultTitle($title);
 
         if (!$category) {
-            file_put_contents('/tmp/product.log', 'category not found: ' . $title . PHP_EOL, FILE_APPEND);
+//            file_put_contents('/tmp/product.log', 'category not found: ' . $title . PHP_EOL, FILE_APPEND);
             $category = $this->createCategory($manager, $title);
 
             if ($parent_category != null) {
-                file_put_contents('/tmp/product.log', 'add to parent category: ' . $parent_category->getDefaultTitle() . PHP_EOL, FILE_APPEND);
+//                file_put_contents('/tmp/product.log', 'add to parent category: ' . $parent_category->getDefaultTitle() . PHP_EOL, FILE_APPEND);
                 $parent_category->addChildCategory($category);
             } else {
                 $this->root->addChildCategory($category);
