@@ -3,6 +3,7 @@
 namespace MENA\Bundle\MENALoadDataBundle\Command;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Query\ResultSetMapping;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductCategory;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductData;
 use MENA\Bundle\MENALoadDataBundle\Loads\LoadProductImages;
@@ -117,6 +118,21 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
            $manager->clear();
 
         }
+
+        $update_inventory_sql = 'update oro_inventory_level set quantity = 1000 where quantity = 0';
+        $conn = $manager->getConnection();
+        $num_rows_effected = $conn->exec($update_inventory_sql);
+
+        $output->writeln('=================================================');
+        $output->writeln('Update inventory level of ['.$num_rows_effected.'] products');
+        $output->writeln('=================================================');
+
+        $update_taxcode_sql = 'UPDATE oro_product set taxCode_id=1 where taxCode_id IS NULL ;';
+        $num_rows_effected = $conn->exec($update_taxcode_sql);
+
+        $output->writeln('Update tax code level of ['.$num_rows_effected.'] products');
+        $output->writeln('=================================================');
+
         $output->writeln('|');
         $output->writeln('=================================================');
         $output->writeln('Total already loaded products: '. $duplicate);
