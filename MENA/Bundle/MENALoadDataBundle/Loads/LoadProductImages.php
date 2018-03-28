@@ -57,6 +57,7 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
 //        file_put_contents('/tmp/product.log', 'persisted product : ' . trim($row['sku']) . PHP_EOL, FILE_APPEND);
 
         $manager->flush();
+        gc_collect_cycles();
        // $output->writeln('Loading product images loaded');
     }
 
