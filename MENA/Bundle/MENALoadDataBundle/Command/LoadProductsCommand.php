@@ -112,7 +112,7 @@ class LoadProductsCommand extends Command implements ContainerAwareInterface
                 $output->writeln('=> Already loaded products: '. $duplicate);
                 $output->writeln('=> New products loaded: '. $i);
                 $output->writeln('--------------------------------------------------------------------------');
-                if( $i==200)
+                if( $i==70)
                     break;
             }
            $manager->clear();
