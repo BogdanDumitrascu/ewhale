@@ -138,10 +138,12 @@ class LoadProductImages extends AbstractLoads implements ContainerAwareInterface
                 $i++;
                 $manager->flush();
                 $output->writeln('---> Loaded image: ' . $imagePath );
-                $imagePath=null;
-                $image=null;
-                $files=null;
+
             }
+
+            unset($imagePath);
+            unset($image);
+            unset($files);
 
         } catch (\Exception $e) {
             //image not found
